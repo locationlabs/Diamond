@@ -1,3 +1,19 @@
+diamond (3.3.430) unstable; urgency=low
+
+  * Last Commit: (2013-05-14 19:14:55 -0700)
+    1467d5d959dd70059ccbdaf3854429e0a98cdaa3 David Morton
+    <david.morton@locationlabs.com>
+
+ -- Luis Morales <luismorales@Thunder>  Wed, 15 May 2013 16:21:35 -0700
+
+diamond (3.3.430) unstable; urgency=low
+
+  * Last Commit: (2013-05-14 19:14:55 -0700)
+    1467d5d959dd70059ccbdaf3854429e0a98cdaa3 David Morton
+    <david.morton@locationlabs.com>
+
+ -- Luis Morales <luismorales@Thunder>  Wed, 15 May 2013 15:13:31 -0700
+
 diamond (3.1.0) unstable; urgency=low
   * new upstream
  -- Rob Smith <kormoc@gmail.com>  Tue, 05 Nov 2012 15:19:00 -0800
