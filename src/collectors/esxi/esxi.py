@@ -7,7 +7,8 @@ depends on pysphere
 A configuration file named EsxiCollector.conf should contain the following parameters:
 
 enabled = True
-path_suffix = ""
+path = 'esxi'
+path_suffix = ''
 measure_collector_time = False
 byte_unit = byte,
 simple = False
@@ -54,9 +55,10 @@ class EsxiCollector(diamond.collector.Collector):
             stats_dict['%s.%s' % (s.group, s.counter)].append(s)
 
         results = []
+
         for key, stats in stats_dict.items():
             vals = [float(s.value) for s in stats]
-            results.append(['%s(%s)x%d' % (key, stats[0].unit, len(stats)),  _avg([float(s.value) for s in stats])])
+            results.append(['%s-%s-x%d' % (key, stats[0].unit, len(stats)),  _avg([float(s.value) for s in stats])])
 
         return results
 
