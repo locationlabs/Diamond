@@ -18,10 +18,22 @@ hosts = <host1>, <host2>,
 username = <username>
 password = <password>
 
+An optional "collect_all_stats" parameters can be provided. If the value is false,
+you also need to provide counter names with aliases in the following format:
+
+counter1 = cpu.usage, cpu-usage-percent
+counter2 = cpu.swapwait, cpu-swapwait-milliseconds
+counter3 = datastore.read, datastore-read-kiloBytesPerSecond
+counter4 = datastore.write, datastore-write-kiloBytesPerSecond
+
+The only constraint is that the key name begin with "counter"
+
 Testing via the command line:
 
 $ diamond -l -f -r Diamond/src/collectors/esxi/esxi.py -c Diamond/conf/diamond.conf.example
 """
+import re
+
 from collections import defaultdict
 from threading import Thread
 
@@ -79,14 +91,26 @@ class EsxiCollector(diamond.collector.Collector):
             # Get a performance managerd instance
             pm = server.get_performance_manager()
 
-            # And the ALL mor_ids for the given host and corresponding statistics
-            mor_ids = pm.get_entity_counters(host).keys()
-            stats = pm.get_entity_statistic(host, mor_ids)
+            # If collect_all_stats is set to True, get everything:
+            if self.config.get('collect_all_stats', True) != 'False':
+                mor_ids = []
+                for key, mor_id in pm.get_entity_counters(host).items():
+                    mor_ids.append(mor_id)
+                stats = pm.get_entity_statistic(host, mor_ids)
 
-            # And publish values
-            for k, v in self.group_stats_by_type_and_generate_averages(stats):
-                self.publish('%s.%s' % (h, k), v)
+                # And publish values
+                for k, v in self.group_stats_by_type_and_generate_averages(stats):
+                    self.publish('%s.%s' % (h, k), v)
 
+            # Otherwise, get all counters and aliases specified
+            else:
+                counters = dict([v for k, v in self.config.items() if k.startswith('counter')])
+                stats = pm.get_entity_statistic(host, counters.keys())
+
+                # And publish values
+                for k, v in self.group_stats_by_type_and_generate_averages(stats):
+                    k = counters[k.rsplit('-', 2)[0]]
+                    self.publish('%s.%s' % (h, k), v)
 
         # For each host defined in EsxiCollector.conf
         for h in self.config['hosts']:
